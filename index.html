@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Intro to QGIS: Make a Map</title>
+	<link target="_blank" href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+	<style>
+
+		/*
+			SLIDE STYLES:
+			All slides are assumed to contain one 'p' element, one 'img' element, or one of each.
+
+			<div class="slide">
+				-- Default style. If no image, text is centered. If image present, it is centered and text is at the top.
+				-- Arbitrary content could go here too (e.g. I used a couple of iframes), but default behavior will mess with any p or img elements.
+
+			<div class="slide image_full">
+				-- Full 1024x768 img, somewhat faded to black and with bold white text (p) centered on top.
+
+			<div class="slide image_bottom">
+				-- Mostly like default except that image appears at the bottom. (Basically just to give more room for longer text).
+			
+			Can make additional class styles for p elements and such if you need different text sizes, colors, etc.
+			(e.g. there is a p.title style with a bigger font)
+
+			img elements themselves are not displayed; rather, their src attributes are applied as div backgrounds. This is to make centering easier, basically.
+		*/
+
+		html, body{
+			margin: 0;
+			font: 20px/24px "PT Sans", sans-serif;
+			background-color: #d1c9b8;
+		}
+		.slide, .slide div{
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 1024px;
+			height: 768px;
+			background-position: center center;
+			background-repeat: no-repeat;
+		}
+		.slide{
+			background-color: #d1c9b8;
+			
+		}
+		.slide.image_bottom{
+			background-position: center bottom;
+		}
+		.slide p{
+			position: absolute;
+			font-size: 64px;
+			line-height: 90px;
+			font-weight: bold;
+			text-align: center;
+			margin: 15px 1% 0 1%;
+			width: 98%;
+		}
+		.slide ul{
+			top: 50px;
+			left: 300px;
+			position: absolute;
+			font-size: 64px;
+			line-height: 72px;
+			font-weight: bold;
+			text-align: left;
+			margin: 0;
+		}
+		.slide img{
+			display: none;
+		}
+		.slide.image_full{
+			background-color: black;
+		}
+		
+		.slide.image_full div{
+			opacity: .5;
+		}
+		.slide.image_full p{
+			color: white;
+			text-shadow:0px 0px 10px #000000;
+		}
+		.slide.image_full.repeat div{
+			background-position: 0 0;
+			background-repeat: repeat;
+		}
+		.slide p.title{
+			font-size: 120px;
+			line-height: 120px;
+		}
+
+		a{
+			color: #e4f363;
+			text-decoration: none;
+		}
+
+		a:hover{
+			text-decoration: underline;
+		}
+
+		a.citation{
+			position: absolute;
+			bottom: 5px;
+			right: 5px;
+			color: #000;
+			background-color: rgba(255,255,255,.75);
+		}
+
+		.code{
+			font-family: 'Courier New';
+		}
+	</style>
+</head>
+<body>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p class="title">Intro to QGIS - Make a Map<br>
+	<a target="_blank" href="http://github.com/maptimeboston">#maptimeBoston</a></p>
+	<a class="citation" href="http://github.com/maptimeboston">Maptime Boston</a>
+</div>
+
+<div class="slide">
+	<p><u>Announcements</u><br>
+	Tomorrow: Avid Geo!<br>
+	Javascript: 6pm @ Hack/Reduce<br>
+	<a target="_blank" href="http://www.meetup.com/avidgeo/events/194850452/">RSVP Here</a></p>
+</div>
+
+<div class="slide">
+	<p><u>Announcements</u><br>
+	NACIS 2014 Conference<br>
+	October 9-11 - Pittsburgh<br>
+	<a target="_blank" href="http://nacis.org/annual-meeting/current-meeting/">Registration</a></p>
+</div>
+
+<div class="slide">
+	<p><u>Thank You</u><br>
+	Cambridge Innovation Center<br>
+	Axis Maps<br></p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p class="title">QGIS<br>
+	What is QGIS?</p>
+</div>
+
+<div class="slide">
+	<img src="images/i_love_open_source_sticker.png"/>
+	<p>Free and Open Source GIS Software</p>
+	<a class="citation" href="http://www.rahber.net/me/why-i-prefer-free-open-source-software/">rahber.net</a>
+</div>
+
+<div class="slide">
+	<p>Official Project of QSGEO<br>
+	Runs on Linux, Unix, Mac OSX, Windows, and Android(!)<br>
+	Fully capable, supports vector (points, lines, polygons) and raster</p>
+</div>
+
+<div class="slide">
+	<img src="images/gpl.png"/>
+	<p>Licensed under the<br>
+	<a target="_blank" href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a></p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/osgeo.png"/>
+	<p>Who is QSGEO?<br>
+	<a target="_blank" href="http://www.gnu.org/copyleft/gpl.html">Open Source Geospatial Foundation</a><br>
+	Community of Developers<br>
+	QGIS, Grass, OpenLayers, etc.</p>
+</div>
+
+<div class="slide image_bottom" style="background-position:center 350px">
+	<img src="images/qgis_committers1.png"/>
+	<p>History of QGIS:<br>
+	Started in 2002 by Gary Sherman
+	Version 1.0 in 2009</p>
+	<a class="citation" href="http://spatialgalaxy.net/2011/09/23/history-of-qgis-committers/" target="_blank">Gary Sherman - History of QGIS Committers (2011)</a>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p class="title">Components of QGIS<br>
+	</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/qgisdesktopscreenshot.jpg"/>
+	<p class="title">QGIS Desktop<br>
+	</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/qgisbrowserscreenshot.png"/>
+	<p class="title">QGIS Browser<br>
+	</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/qgisserverscreenshot.png"/>
+	<p class="title">QGIS Server<br>
+	</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/qgiswebclientscreenshot.png"/>
+	<p class="title">QGIS Web Client<br>
+	</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/qgisandroidscreenshot.jpg"/>
+	<p class="title">QGIS for Android (beta)<br>
+	Mobile! Try if you dare!</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p class="title">Lets make maps! Download:<br>
+	<a target="_blank" href="http://www.qgis.org/en/site/">QGIS 2.4</a><br>
+	Chugiak</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/rat-map.jpg"/>
+	<p>Todays Task: RAT MAP!<br>
+	<a target="_blank" href="https://data.cityofboston.gov/">Open Data Boston</a></p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/rat-map.jpg"/>
+	<p>But First...<br>
+	a little to get you started.</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/qgis-ui.png"/>
+	<p>Get familiar with the UI</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/map-navigation.png"/>
+	<p>Map Navigation Toolbar</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/file-toolbar.png"/>
+	<p>File Toolbar</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/manage-layers.png"/>
+	<p>Manage Layers</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/attribute-toolbar.png"/>
+	<p>Attribute Toolbar</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/layers-panel.png"/>
+	<p>Layers Panel</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/browser-panel.png"/>
+	<p>Browser Panel</p>
+</div>
+
+<div class="slide">
+	<img src="images/other-toolbars.png"/>
+	<p>Others<br>View -> Toolbars</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/add-data.png"/>
+	<p class="title">Add Data</p>
+</div>
+
+<div class="slide">
+	<p>Add Data<br>Boston Neighborhoods<br>Rodent Activity (CSV)<br><a target="_blank" href="http://data.graphicarto.com/maptime-qgis.zip">Data Package</a></p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p>Adding Data - What is supported?<br>
+	<a target="_blank" href="http://www.gdal.org/ogr_formats.html">OGR Vector Formats</a><br>
+	<a target="_blank" href="http://www.gdal.org/formats_list.html">GDAL Raster Formats</a><br>
+	PostGIS, OracleSpatial, SpatialLite<br>
+	Tabular (csv, tsv, etc.)</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p>Projections<br>Will default to the projection set in your project, if none WGS84<br>Layers -> Individual basis<br>Project -> Project Properties</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p>Reprojecting a Dataset:<br>Right Click on Layer -> Save As</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/project-properties1.png"/>
+	<p>Enable 'on the fly'</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/added-data1.png"/>
+	<p>Let's Symbolize</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/layer-properties1.png"/>
+	<p>Layer Properties</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/style-tab1.png"/>
+	<p>Symbolize in Style Tab</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/properties-select1.png"/>
+	<p>Explore the Other Properties</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/properties-select1.png"/>
+	<p>Labels<br/>Fields<br/>Display<br/>Actions<br/>Joins<br/>Diagrams<br/>Metadata</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/editing.png"/>
+	<p>Editing<br/>We won't really do this today.<br/>but you can!</p>
+</div>
+
+<div class="slide">
+	<img src="images/geoprocessing.png"/>
+	<p>Geoprocessing</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/geoprocessing.png"/>
+	<p>Vector Menu<br>Raster Menu</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/geoprocessing.png"/>
+	<p>Try Points in Polygon<br>Calculate the Neighborhoods with the most Rat Violations</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/export-data.png"/>
+	<p>Exporting Datasets<br>Right click -> Save as...<br>Preserve your transformations.</p>
+</div>
+
+<div class="slide">
+	<img src="images/map-before1.png"/>
+</div>
+
+<div class="slide image_full">
+	<img src="images/map-before1.png"/>
+	<p>To the Print Composer</p>
+</div>
+
+<div class="slide">
+	<img src="images/print-composer.png"/>
+	<p>Maps are composed in QGIS using the Print Composer</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/add-map.png"/>
+	<p>Add the map element.</p>
+</div>
+
+<div class="slide">
+	<p>Layout your map presentation in Print Composer.<br>Maps, Legend, Scale, North Arrow, etc.<br>You can save it and return to it, and update it!</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/rat-map-layout1.png"/>
+	<p>The Layout Process</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/export-image.png"/>
+	<p>When satisfied:<br>Export Image<br>Export PDF<br>Export SVG</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p>Other QGIS Features:<br>Map Services<br>QGIS Server<br>Web Publishing<br>Python<br>Database Connections</p>
+</div>
+
+<div class="slide image_full">
+	<img src="images/plugins1.png"/>
+	<p>Plugins!<br>One of the neatest features of QGIS<br>Tons of Open Source Plugins<br>Plugins -> Plug In Manager</p>
+</div>
+
+<div class="slide">
+	<img src="images/plugins1.png"/>
+</div>
+
+<div class="slide image_full">
+	<img src="images/chugiak_alaska1.png"/>
+	<p>More QGIS in the Future<br>This is only the beginning.<br>But for now...</p>
+</div>
+
+<div class="slide image_bottom">
+	<img src="images/rat-map.jpg"/>
+	<p>Make a RAT MAP!<br>Have at it, and have fun!<br>
+	<a target="_blank" href="http://data.graphicarto.com/maptime-qgis.zip">Download the Data ZIP</a></p>
+</div>
+
+
+
+<script>
+	// The following is mostly derived from https://github.com/tmcw/big
+
+	var slides = document.getElementsByClassName("slide"),
+		current = 0;
+
+	function go(n){
+		current = n;
+		var slide = slides[n],
+			classes = slide.className.split(" ");
+		for (var i = 0; i < slides.length; i++) slides[i].style.display = 'none';
+		slide.style.display = 'block';
+
+	slide.style.left = (window.innerWidth - slide.offsetWidth) / 2 + "px";
+	slide.style.top = (window.innerHeight - slide.offsetHeight) / 2 + "px";
+
+		if ( classes[1] && styleSlide[classes[1]] ) styleSlide[classes[1]](slide);
+		else styleSlide.normal(slide);
+		resize();
+
+		if (window.location.hash !== n) window.location.hash = n;
+	}
+
+	var styleSlide = {
+		heading: function(slide){
+			var p = slide.getElementsByTagName("p")[0];
+			p.style.marginTop = (slide.offsetHeight - p.offsetHeight) / 2 + "px";
+		},
+
+		image_full: function(slide){
+			var img = slide.getElementsByTagName("img")[0];
+			var p = slide.getElementsByTagName("p")[0];
+			var div = slide.getElementsByTagName("div")[0] || document.createElement("div");
+			div.style.backgroundImage = 'url(' + img.src + ')';
+			slide.insertBefore(div,p);
+	        img.style.display = 'none';
+			p.style.marginTop = (slide.offsetHeight - p.offsetHeight) / 2 + "px";
+		},
+
+		image_bottom: function(slide){
+			var img = slide.getElementsByTagName("img")[0];
+			if ( !img ) return;
+	        slide.style.backgroundImage = 'url(' + img.src + ')';
+	        img.style.display = 'none';
+		},
+
+		normal: function(slide){
+			var img = slide.getElementsByTagName("img")[0];
+			var p = slide.getElementsByTagName("p")[0];
+
+			if ( img ){
+				slide.style.backgroundImage = 'url(' + img.src + ')';
+			} else if (!img && !slide.getElementsByTagName("iframe")[0]){
+				if ( p ){
+					p.style.marginTop = (slide.offsetHeight - p.offsetHeight) / 2 + "px";
+				}
+			}
+		}
+	}
+
+	document.onclick = function() { go(++current % (slides.length)); };
+    function fwd() { go(Math.min(slides.length - 1, ++current)); }
+    function rev() { go(Math.max(0, --current)); }
+    document.onkeydown = function(e) {
+        if (e.which === 39 || e.which === 34 || e.which === 40) fwd();
+        if (e.which === 37 || e.which === 33 || e.which === 38) rev();
+    };
+    document.ontouchstart = function(e) {
+        var x0 = e.changedTouches[0].pageX;
+        document.ontouchend = function(e) {
+            var x1 = e.changedTouches[0].pageX;
+            if (x1 - x0 < 0) fwd();
+            if (x1 - x0 > 0) rev();
+        };
+    };
+
+    function parse_hash() {
+        return Math.max(Math.min(slides.length - 1,
+            parseInt(window.location.hash.substring(1), 10)), 0);
+    }
+    if (window.location.hash) current = parse_hash() || current;
+    window.onhashchange = function() {
+        var c = parse_hash();
+        if (c !== current) go(c);
+    };
+    window.onresize = resize;
+
+    function resize(){
+    	var s = Math.min( 1, Math.min( window.innerHeight / 768, window.innerWidth / 1024 ) );
+    		slides[current].style.webkitTransform = "scale(" + s + "," + s +")";
+			slides[current].style.MozTransform = "scale(" + s + "," + s +")";
+			slides[current].style.msTransform = "scale(" + s + "," + s +")";
+			slides[current].style.transform = "scale(" + s + "," + s +")";
+    }
+    go(current);
+</script>
+
+</body>
+</html>
