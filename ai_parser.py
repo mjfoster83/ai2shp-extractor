@@ -17,13 +17,7 @@ import arcpy
 from arcpy import env
 
 # set workspace
-gp.overwriteoutput = 1
-gp.setProduct("ArcInfo")
-gp.addToolbox("C:/arcgis/arcexe9x/Toolboxes/Coverage Tools.tbx")
-
-# set working directory
-workspace = "E:/5562Project/fosterProject/"
-gp.workspace = workspace
+env.workspace = "C:/Users/Mike/Documents/GitHub/ai-parser"
 
 # SET CONSTANTS
 
@@ -40,7 +34,7 @@ Conversion = 4.2555
 coordsys = "PROJCS['NAD_1983_UTM_Zone_15N',GEOGCS['GCS_North_American_1983',DATUM['D_North_American_1983',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Transverse_Mercator'],PARAMETER['False_Easting',500000.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-93.0],PARAMETER['Scale_Factor',0.9996],PARAMETER['Latitude_Of_Origin',0.0],UNIT['Meter',1.0]]"
 
 # open ai file to read from and text file to write to
-f = open("Lake Calhoun.ai", "r")
+f = open("LakeCalhoun.ai", "r")
 g = open("temp.txt", "w")
 
 # for loop through file to pull out points and necessary operators from ai file
@@ -202,9 +196,9 @@ input_line = "line.txt"
 output_line = "polylines"
 
 print "Creating polyline coverage for lines..."
-gp.Generate_arc(input_line, output_line, "lines")
+arcpy.Generate_arc(input_line, output_line, "lines")
 arc = output_line + "\\arc"
-print gp.GetMessages()
+print arcpy.GetMessages()
 gp.refreshCatalog(workspace)
 
 # GENERATE COMMAND FOR POLYGONS WILL GO HERE
