@@ -1,9 +1,9 @@
-# Michael Foster
-# GIS 5562 - Analytical Cartography
-# Project
-# December 17, 2009
-# 
-# AItoShapefile.py
+# ai_parser.py
+#
+# =============================================================================================
+#
+# Author: Michael Foster
+# October 2, 2014
 #
 # Using the existing AI map file "LakeCalhoun.ai", this script loops through and extracts points
 # from the AI Postscript file, setting the UTM easting and northing according to the scale, and
@@ -12,8 +12,11 @@
 # NOTE: Requires ArcInfo, works best with AI files backsaved to AI 3.0
 
 # import modules, set up script
-import sys, os, string, arcgisscripting
-gp = arcgisscripting.create()
+import sys, os, string
+import arcpy
+from arcpy import env
+
+# set workspace
 gp.overwriteoutput = 1
 gp.setProduct("ArcInfo")
 gp.addToolbox("C:/arcgis/arcexe9x/Toolboxes/Coverage Tools.tbx")
