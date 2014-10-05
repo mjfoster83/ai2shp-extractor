@@ -12,7 +12,7 @@
 # NOTE: Requires ArcInfo, works best with AI files backsaved to AI 3.0
 
 # import modules, set up script
-import sys, os, string
+import sys, os, string, csv
 import arcpy
 from arcpy import env
 
@@ -31,7 +31,7 @@ NOrigin = 4975089.10248144
     # conversion factor
 Conversion = 4.2555
     # projection information
-coordsys = "PROJCS['NAD_1983_UTM_Zone_15N',GEOGCS['GCS_North_American_1983',DATUM['D_North_American_1983',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Transverse_Mercator'],PARAMETER['False_Easting',500000.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-93.0],PARAMETER['Scale_Factor',0.9996],PARAMETER['Latitude_Of_Origin',0.0],UNIT['Meter',1.0]]"
+coordsys = r"Coordinate Systems\Projected Coordinate Systems\Utm\Nad 1983\NAD 1983 UTM Zone 15N.prj"
 
 # open ai file to read from and text file to write to
 f = open("LakeCalhoun.ai", "r")
@@ -122,21 +122,25 @@ c = open("temp.txt", "r")
 
 # create empty array to temporarily store read lines
 l = []
+allID = 1
 lineID = 1
 polyID = 1
-a.write(str(lineID) + "\n")
-b.write(str(polyID) + "\n")
+drawOrder = 1
+a.write(str("LINEID,DRAWORD,POINT_X,POINT_Y") + "\n")
+b.write(str("POLYID,DRAWORD,POINT_X,POINT_Y") + "\n")
 
 for line in c:
-    l.append(line)
+    l.append(str(allID)+str(", ")+str(drawOrder)+str(", ")+line)
+    drawOrder = drawOrder + 1
     
     if line.find("S") != -1:
         l.pop()
         a.writelines(l)
         del l[:]
         lineID = lineID + 1
-        a.write("END" + "\n")
-        a.write(str(lineID) + "\n")
+        allID = allID + 1
+        # a.write("END" + "\n")
+        # a.write(str(lineID) + "\n")
         print "Polyline written to file."
         
     elif line.find("b") != -1:
@@ -144,8 +148,9 @@ for line in c:
         b.writelines(l)
         del l[:]
         polyID = polyID + 1
-        b.write("END" + "\n")
-        b.write(str(polyID) + "\n")
+        allID = allID + 1
+        # b.write("END" + "\n")
+        # b.write(str(polyID) + "\n")
         print "Polygon written to file."
 
 # close files to save written coordinates
@@ -162,7 +167,6 @@ l = []
 for line in a:
     l.append(line)
 
-l[-1] = "END\n"
 b.writelines(l)
 
 a.close()
@@ -178,7 +182,6 @@ l = []
 for line in a:
     l.append(line)
 
-l[-1] = "END\n"
 b.writelines(l)
 
 a.close()
@@ -189,34 +192,110 @@ os.remove("temp.txt")
 os.remove("tempPoly.txt")
 os.remove("tempLine.txt")
 
-# create new file
+# GENERATE NEW POLYLINE SHAPEFILE
+# create a Polyline XY Event Layer
+print "Creating polyline event layer for lines..."
+try:
+    # Set the local variables
+    in_Table = "line.txt"
+    x_coords = "POINT_X"
+    y_coords = "POINT_Y"
+    out_Layer = "convert_lines"
+    saved_Layer = "lines.lyr"
+ 
+    # Set the spatial reference
+    spRef = coordsys
+ 
+    # Make the XY event layer...
+    arcpy.MakeXYEventLayer_management(in_Table, x_coords, y_coords, out_Layer, spRef)
+ 
+    # Print the total rows
+    print arcpy.GetCount_management(out_Layer)
+ 
+    # Save to a layer file
+    arcpy.SaveToLayerFile_management(out_Layer, saved_Layer)
+ 
+except:
+    # If an error occurred print the message to the screen
+    print arcpy.GetMessages()
 
-# run the generate command to create polyline file
-input_line = "line.txt"
-output_line = "polylines"
+# Create point shapefile from Polyline XY Layer
+# Set local variables
+inFeatures = ["lines.lyr"]
+outLocation = "/temp/"
+ 
+# Execute FeatureClassToGeodatabase
+arcpy.FeatureClassToShapefile_conversion(inFeatures, outLocation)
 
-print "Creating polyline coverage for lines..."
-arcpy.Generate_arc(input_line, output_line, "lines")
-arc = output_line + "\\arc"
-print arcpy.GetMessages()
-gp.refreshCatalog(workspace)
+# Create Line Shapefile
+# Set local variables
+inFeatures = "/temp/convert_lines.shp"
+outFeatures = "/final_output/lines.shp"
+lineField = "LINEID"
+sortField = "DRAWORD"
 
-# GENERATE COMMAND FOR POLYGONS WILL GO HERE
+# Execute PointsToLine on Convert Lines File
+arcpy.PointsToLine_management(inFeatures, outFeatures, lineField, sortField)
 
-# convert coverage to shapefile
-print "Creating shapefile from coverage..."
-cov = workspace + "shapefiles"
-gp.FeatureClassToShapefile_conversion (arc, cov)
-print gp.GetMessages()
+# Delete Convert Lines File
+arcpy.Delete_management("/temp/convert_lines.shp", "")
 
-# define projection of shapefile
-print "Defining projection..."
-shp = workspace + "shapefiles/polylines_arc.shp"
-gp.DefineProjection_management (shp, coordsys)
-print gp.GetMessages()
+# GENERATE NEW POLYGON SHAPEFILE
+# create a Polyline XY Event Layer
+print "Creating polygon event layer for lines..."
+try:
+    # Set the local variables
+    in_Table = "poly.txt"
+    x_coords = "POINT_X"
+    y_coords = "POINT_Y"
+    out_Layer = "convert_poly"
+    saved_Layer = "poly.lyr"
+ 
+    # Set the spatial reference
+    spRef = coordsys
+ 
+    # Make the XY event layer...
+    arcpy.MakeXYEventLayer_management(in_Table, x_coords, y_coords, out_Layer, spRef)
+ 
+    # Print the total rows
+    print arcpy.GetCount_management(out_Layer)
+ 
+    # Save to a layer file
+    arcpy.SaveToLayerFile_management(out_Layer, saved_Layer)
+ 
+except:
+    # If an error occurred print the message to the screen
+    print arcpy.GetMessages()
 
-# CREATE POLYGON SHAPEFILES HERE
-# DEFINE POLYGON SHAPEFILE PROJECTION HERE
+# Create point shapefile from Polyline XY Layer
+# Set local variables
+inFeatures = ["poly.lyr"]
+outLocation = "/temp/"
+ 
+# Execute FeatureClassToGeodatabase
+arcpy.FeatureClassToShapefile_conversion(inFeatures, outLocation)
+
+# Create Line Shapefile
+# Set local variables
+inFeatures = "/temp/convert_poly.shp"
+outFeatures = "/temp/convert_featurepoly.shp"
+lineField = "POLYID"
+sortField = "DRAWORD"
+
+# Execute PointsToLine on Convert Lines File
+arcpy.PointsToLine_management(inFeatures, outFeatures, lineField, sortField)
+
+# Delete Convert Lines File
+arcpy.Delete_management("/temp/convert_poly.shp", "")
+
+# Create Polygon File from Line file
+# Set local parameters
+inFeatures = "/temp/convert_featurepoly.shp"
+outFeatureClass = "/final_output/poly.shp"
+clusTol = "0.05 Meters"
+
+# Use the FeatureToPolygon function to form new areas
+arcpy.FeatureToPolygon_management(inFeatures, outFeatureClass, clusTol, "NO_ATTRIBUTES", "")
 
 # final status report
 print str(lineID - 1) + " polylines extracted from AI file."
