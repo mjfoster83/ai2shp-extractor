@@ -297,6 +297,14 @@ clusTol = "0.05 Meters"
 # Use the FeatureToPolygon function to form new areas
 arcpy.FeatureToPolygon_management(inFeatures, outFeatureClass, clusTol, "NO_ATTRIBUTES", "")
 
+# delete temporary files
+os.remove("line.txt")
+os.remove("poly.txt")
+
+# Delete Unused Layer File
+arcpy.Delete_management("poly.lyr", "")
+arcpy.Delete_management("lines.lyr", "")
+
 # final status report
 print str(lineID - 1) + " polylines extracted from AI file."
 print str(polyID - 1) + " polygons extracted from AI file."
