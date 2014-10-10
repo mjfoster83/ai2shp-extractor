@@ -1,8 +1,13 @@
-ai-parser
+ai-extractor
 ========
 
-AI Parser
+AI Data Extractor
 
 Python script that parses and extracts features from an Adobe Illustrator file and creates point, polyline, and polygon text files to convert into geographic features.
 
-Copyright (c) Mike Foster, October 2014
+Use Instructions
+----------------
+
+<coming soon>
+
+Mike Foster, October 2014
